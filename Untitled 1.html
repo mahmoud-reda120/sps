@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حسابات المذكرات والطباعة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS للتصميم (نفس الكود السابق الأنيق) */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --card-background: #ffffff;
+            --border-radius: 10px;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--primary-color);
+            direction: rtl;
+            text-align: right;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .input-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        input[type="number"]::before {
+            content: attr(step);
+        }
+
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background-color: #bdc3c7; /* لون رمادي عند التعطيل */
+            cursor: not-allowed;
+        }
+
+        .results-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .result-card {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-right: 5px solid var(--secondary-color);
+            transition: transform 0.3s;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .result-card h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+
+        .result-card .value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin: 10px 0 0;
+        }
+
+        #total-profit-card {
+            grid-column: 1 / -1;
+            border-right: 5px solid #27ae60;
+        }
+        
+        .category-heading {
+            grid-column: 1 / -1;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.5em;
+        }
+        .category-heading:first-child {
+            margin-top: 0;
+        }
+
+        .percentage-card {
+             border-right: 5px solid #f39c12;
+        }
+
+        .remaining-card {
+             border-right: 5px solid #9b59b6;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📊 حاسبة المذكرات والمكاسب </h1>
+    <div class="main-grid">
+        <div class="input-section">
+            <h2>📝 إدخال البيانات (المتغيرات)</h2>
+            <form id="calculation-form">
+                <div class="input-group">
+                    <label for="b1">عدد الطلاب (b1)</label>
+                    <input type="number" id="b1" required min="0" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="b2">عدد الورق المطبوع (b2)</label>
+                    <input type="number" id="b2" required min="0" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="b3">سعر المذكرة (b3)</label>
+                    <input type="number" id="b3" required min="0" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="b4">سعر الورقة تصوير (b4)</label>
+                    <input type="number" id="b4" required min="0" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="b5">سعر الورقة بيع (b5)</label>
+                    <input type="number" id="b5" required min="0" step="any">
+                </div>
+                <hr>
+                <div class="input-group">
+                    <label for="b6">سعر باكت الورق (b6)</label>
+                    <input type="number" id="b6" required min="0" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="b7">سعر الحبر (b7)</label>
+                    <input type="number" id="b7" required min="0" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="b8">الإنترنت (مصروف ثابت) (b8)</label>
+                    <input type="number" id="b8" required min="0" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="b9">مصروفات أخرى (b9)</label>
+                    <input type="number" id="b9" required min="0" step="any">
+                </div>
+                 <div class="input-group">
+                    <label for="b10">الصيانة (b10)</label>
+                    <input type="number" id="b10" required min="0" step="any">
+                </div>
+
+                <button type="submit">حساب النتائج 🚀</button>
+            </form>
+        </div>
+
+        <div class="results-container">
+            <h2>💰 النتائج والحسابات الإجمالية</h2>
+            
+            <button type="button" onclick="downloadResults()" style="background-color: #2ecc71; margin-bottom: 20px;" disabled id="download-btn">
+                📥 تنزيل النتائج كملف (Excel/CSV)
+            </button>
+            
+            <div class="results-section" id="results">
+                <p style="grid-column: 1 / -1; text-align: center; color: #7f8c8d;">أدخل البيانات واضغط على "حساب النتائج" لعرض النتائج هنا.</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // JavaScript لعملية الحساب وعرض النتائج
+    document.getElementById('calculation-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        calculateResults();
+    });
+
+    function calculateResults() {
+        // قراءة المتغيرات
+        const b1 = parseFloat(document.getElementById('b1').value) || 0;
+        const b2 = parseFloat(document.getElementById('b2').value) || 0;
+        const b3 = parseFloat(document.getElementById('b3').value) || 0;
+        const b4 = parseFloat(document.getElementById('b4').value) || 0;
+        const b5 = parseFloat(document.getElementById('b5').value) || 0;
+        const b6 = parseFloat(document.getElementById('b6').value) || 0;
+        const b7 = parseFloat(document.getElementById('b7').value) || 0;
+        const b8 = parseFloat(document.getElementById('b8').value) || 0;
+        const b9 = parseFloat(document.getElementById('b9').value) || 0;
+        const b10 = parseFloat(document.getElementById('b10').value) || 0;
+
+        // دالة لعرض البطاقة (لا تغيير فيها)
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '';
+
+        const renderCard = (title, value, typeClass = '') => {
+            const card = document.createElement('div');
+            card.className = `result-card ${typeClass}`;
+            card.innerHTML = `
+                <h3>${title}</h3>
+                <p class="value">${(Math.round(value * 100) / 100).toLocaleString('ar-EG', { minimumFractionDigits: 2 })}</p>
+            `;
+            resultsDiv.appendChild(card);
+        };
+        
+        const renderCategoryHeading = (title) => {
+            const heading = document.createElement('h2');
+            heading.className = 'category-heading';
+            heading.textContent = title;
+            resultsDiv.appendChild(heading);
+        };
+        
+        // --- بدء الحسابات ---
+
+        // 1. المبالغ الأساسية 
+        renderCategoryHeading('1. المبالغ الأساسية والإجمالية');
+        const totalAmount = b1 * b3;
+        renderCard('الإيراد الإجمالي للمذكرات (b1 * b3)', totalAmount);
+        const totalPapersPrinted = b1 * b2;
+        renderCard('إجمالي عدد الورق المطبوع (b1 * b2)', totalPapersPrinted);
+        const totalPrintingCost = b1 * b2 * b4;
+        renderCard('إجمالي سعر طباعة الورق (التكلفة) (b1 * b2 * b4)', totalPrintingCost);
+        const totalPaperSales = b1 * b2 * b5;
+        renderCard('إجمالي سعر بيع الورق (الإيراد) (b1 * b2 * b5)', totalPaperSales);
+        const totalPrintingProfit = totalPaperSales - totalPrintingCost;
+        renderCard('إجمالي مكسب طباعة الورق', totalPrintingProfit, 'total-profit-card');
+
+        // 2. جملة تكلفة ومكسب الورق (المعادلة المحدثة)
+        renderCategoryHeading('2. جملة تكلفة ومكسب الورق (المعادلة المحدثة)');
+        let totalPaperCostPerUnit = 0;
+        if (totalPapersPrinted !== 0) {
+            const actualPaperCost = (b6 / 500) * totalPapersPrinted;
+            let averageInkInternetCost = 0;
+            if ((b2 + b1) !== 0) {
+                averageInkInternetCost = (b7 + b8) / (b2 + b1);
+            }
+            totalPaperCostPerUnit = actualPaperCost + averageInkInternetCost;
+        }
+        renderCard('إجمالي جملة الورقة (التكلفة الإجمالية للورقة)', totalPaperCostPerUnit);
+        const totalPaperProfitNew = totalPaperSales - totalPaperCostPerUnit;
+        renderCard('إجمالي مكسب جملة الورق (الإيراد - التكلفة الإجمالية للورقة)', totalPaperProfitNew, 'total-profit-card');
+        
+        // 3. نسب التوزيع (مكسب المذكرة)
+        renderCategoryHeading('3. توزيع مكسب المذكرة الإجمالي');
+        const grossMemoProfit = totalAmount - totalPrintingCost;
+        const doctorShare = grossMemoProfit * 0.70;
+        renderCard('نسبة دكتور المادة (70% من المكسب الإجمالي للمذكرة)', doctorShare, 'percentage-card');
+        const moustafaShare1 = (grossMemoProfit * 0.30) / 4;
+        renderCard('نسبة موسى 1 (30% من المكسب / 4)', moustafaShare1, 'percentage-card');
+
+        // 4. نسب التوزيع (رصيد الطباعة)
+        renderCategoryHeading('4. توزيع الرصيد القابل للتوزيع من الطباعة');
+        const distributableBalance = totalPrintingCost - totalPaperSales;
+        const uniShare = distributableBalance * 0.30;
+        renderCard('نسبة الجامعة (30% من الرصيد القابل للتوزيع)', uniShare, 'percentage-card');
+        const maintenanceShare = distributableBalance * 0.15;
+        renderCard('نسبة الصيانة (15% من الرصيد القابل للتوزيع)', maintenanceShare, 'percentage-card');
+        const internetShare = distributableBalance * 0.05;
+        renderCard('نسبة الإنترنت (5% من الرصيد القابل للتوزيع)', internetShare, 'percentage-card');
+        const moustafaShare2 = distributableBalance * 0.10;
+        renderCard('نسبة موسى 2 (10% من الرصيد القابل للتوزيع)', moustafaShare2, 'percentage-card');
+        const totalMoustafaShare = moustafaShare2 + moustafaShare1;
+        renderCard('إجمالي نسبة موسى (موسى 1 + موسى 2)', totalMoustafaShare, 'total-profit-card');
+
+        // 5. المتبقي
+        renderCategoryHeading('5. المتبقي بعد المصروفات الثابتة');
+        const internetRemaining = internetShare - b9;
+        renderCard('المتبقي للإنترنت (النسبة - مصروفات أخرى b9)', internetRemaining, 'remaining-card');
+        const maintenanceRemaining = maintenanceShare - b10;
+        renderCard('المتبقي للصيانة (النسبة - مصروف الصيانة b10)', maintenanceRemaining, 'remaining-card');
+
+        // تمكين زر التنزيل بعد الحساب بنجاح
+        document.getElementById('download-btn').disabled = false;
+    }
+
+
+    // --------------------------------------------------------------------------------
+    // دالة تنزيل النتائج كملف CSV (يفتح ببرنامج Excel)
+    // --------------------------------------------------------------------------------
+
+    function downloadResults() {
+        // قراءة كافة القيم المحسوبة (يجب إعادة حسابها لضمان التنسيق في ملف CSV)
+        const b1 = parseFloat(document.getElementById('b1').value) || 0;
+        const b2 = parseFloat(document.getElementById('b2').value) || 0;
+        const b3 = parseFloat(document.getElementById('b3').value) || 0;
+        const b4 = parseFloat(document.getElementById('b4').value) || 0;
+        const b5 = parseFloat(document.getElementById('b5').value) || 0;
+        const b6 = parseFloat(document.getElementById('b6').value) || 0;
+        const b7 = parseFloat(document.getElementById('b7').value) || 0;
+        const b8 = parseFloat(document.getElementById('b8').value) || 0;
+        const b9 = parseFloat(document.getElementById('b9').value) || 0;
+        const b10 = parseFloat(document.getElementById('b10').value) || 0;
+
+        // إعادة الحسابات الرئيسية لجمعها في ملف CSV
+        const totalAmount = b1 * b3;
+        const totalPapersPrinted = b1 * b2;
+        const totalPrintingCost = b1 * b2 * b4;
+        const totalPaperSales = b1 * b2 * b5;
+        const totalPrintingProfit = totalPaperSales - totalPrintingCost;
+        
+        // إجمالي جملة الورقة (المعادلة المحدثة)
+        let totalPaperCostPerUnit = 0;
+        if (totalPapersPrinted !== 0) {
+            const actualPaperCost = (b6 / 500) * totalPapersPrinted;
+            let averageInkInternetCost = 0;
+            if ((b2 + b1) !== 0) {
+                averageInkInternetCost = (b7 + b8) / (b2 + b1);
+            }
+            totalPaperCostPerUnit = actualPaperCost + averageInkInternetCost;
+        }
+        const totalPaperProfitNew = totalPaperSales - totalPaperCostPerUnit;
+        
+        // مكسب المذكرة للتوزيع
+        const grossMemoProfit = totalAmount - totalPrintingCost;
+        const doctorShare = grossMemoProfit * 0.70;
+        const moustafaShare1 = (grossMemoProfit * 0.30) / 4;
+        
+        // رصيد الطباعة للتوزيع
+        const distributableBalance = totalPrintingCost - totalPaperSales;
+        const uniShare = distributableBalance * 0.30;
+        const maintenanceShare = distributableBalance * 0.15;
+        const internetShare = distributableBalance * 0.05;
+        const moustafaShare2 = distributableBalance * 0.10;
+        const totalMoustafaShare = moustafaShare2 + moustafaShare1;
+        
+        // المتبقي
+        const internetRemaining = internetShare - b9;
+        const maintenanceRemaining = maintenanceShare - b10;
+
+
+        // 1. تنسيق رؤوس الأعمدة (Header)
+        // إضافة UTF-8 BOM (\ufeff) لضمان عرض الحروف العربية بشكل صحيح في Excel
+        let csvContent = "المتغير,القيمة,الوصف\n";
+
+        // 2. تنسيق المتغيرات (Inputs)
+        csvContent += `عدد الطلاب,${b1},b1\n`;
+        csvContent += `عدد الورق المطبوع,${b2},b2\n`;
+        csvContent += `سعر المذكرة,${b3},b3\n`;
+        csvContent += `سعر الورقة تصوير,${b4},b4\n`;
+        csvContent += `سعر الورقة بيع,${b5},b5\n`;
+        csvContent += `سعر باكت الورق,${b6},b6\n`;
+        csvContent += `سعر الحبر,${b7},b7\n`;
+        csvContent += `الإنترنت (مصروف ثابت),${b8},b8\n`;
+        csvContent += `مصروفات أخرى,${b9},b9\n`;
+        csvContent += `الصيانة (مصروف ثابت),${b10},b10\n`;
+
+        csvContent += "\nالنتائج,القيمة,النوع\n"; // فاصل بين المدخلات والمخرجات
+
+        // 3. تنسيق المخرجات (Results)
+        csvContent += `الإيراد الإجمالي للمذكرات,${totalAmount.toFixed(2)},المبالغ الأساسية\n`;
+        csvContent += `إجمالي عدد الورق المطبوع,${totalPapersPrinted.toFixed(0)},المبالغ الأساسية\n`;
+        csvContent += `إجمالي سعر طباعة الورق (التكلفة),${totalPrintingCost.toFixed(2)},المبالغ الأساسية\n`;
+        csvContent += `إجمالي سعر بيع الورق (الإيراد),${totalPaperSales.toFixed(2)},المبالغ الأساسية\n`;
+        csvContent += `إجمالي مكسب طباعة الورق,${totalPrintingProfit.toFixed(2)},المكسب\n`;
+        csvContent += `إجمالي جملة الورقة (التكلفة الإجمالية),${totalPaperCostPerUnit.toFixed(2)},جملة التكلفة\n`;
+        csvContent += `إجمالي مكسب جملة الورق,${totalPaperProfitNew.toFixed(2)},المكسب\n`;
+        csvContent += `نسبة دكتور المادة,${doctorShare.toFixed(2)},نسب التوزيع\n`;
+        csvContent += `نسبة موسى 1,${moustafaShare1.toFixed(2)},نسب التوزيع\n`;
+        csvContent += `نسبة الجامعة,${uniShare.toFixed(2)},نسب التوزيع\n`;
+        csvContent += `نسبة الصيانة,${maintenanceShare.toFixed(2)},نسب التوزيع\n`;
+        csvContent += `نسبة الإنترنت,${internetShare.toFixed(2)},نسب التوزيع\n`;
+        csvContent += `نسبة موسى 2,${moustafaShare2.toFixed(2)},نسب التوزيع\n`;
+        csvContent += `إجمالي نسبة موسى,${totalMoustafaShare.toFixed(2)},المكسب النهائي\n`;
+        csvContent += `المتبقي للإنترنت,${internetRemaining.toFixed(2)},المتبقي\n`;
+        csvContent += `المتبقي للصيانة,${maintenanceRemaining.toFixed(2)},المتبقي\n`;
+
+        // 4. إنشاء ملف التنزيل
+        const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        
+        const date = new Date().toLocaleDateString('sv-SE').replace(/-/g, '');
+        link.setAttribute('download', `Memo_Calculations_${date}.csv`);
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        alert("تم تنزيل النتائج بنجاح! يمكنك فتح الملف ببرنامج Excel.");
+    }
+
+    // تعطيل الزر عند تحميل الصفحة لضمان إجراء الحساب أولاً
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('download-btn').disabled = true;
+    });
+</script>
+
+</body>
+</html>
